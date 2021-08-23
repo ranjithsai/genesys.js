@@ -1,0 +1,21 @@
+{
+  "name": "genesys.js",
+  "version": "2.0.0",
+  "productTitle": "genesys.js",
+  "copyright": "Copyright ©2020 Genesys. All rights reserved.",
+  "description": "",
+  "author": "Genesys",
+  "license": "Genesys Telecom Labs",
+  "scripts": {
+    "build": "node server.js"
+  },
+  "contributors": [
+    {
+      "name": "Ranjith sai",
+      "email": "ranjith.sai@genesys.com"
+    }
+  ],
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}

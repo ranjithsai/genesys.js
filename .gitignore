@@ -1,0 +1,25 @@
+# build output
+build
+
+# dependencies
+node_modules
+
+# cxbus
+/includes/cxbus.min.js
+
+# npm
+npm-debug.log
+
+# tarballs
+*.tgz
+
+# IntelliJ
+.idea
+
+# Mac custom attributes
+.DS_Store
+cypress/screenshots/
+cypress/videos/
+
+# https
+cert.pem
