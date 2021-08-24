@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.static(__dirname));
 
 /* serves main page */
-app.use(express.static(path.join(__dirname, "./")));
+//app.use(express.static(path.join(__dirname, "./")));
 
 /** To redirect after auth login */
 app.get('/auth/callback', (req, res) => {
@@ -22,7 +22,7 @@ app.get('/auth/callback', (req, res) => {
 
 app.get("*", function (_, res) {
     res.sendFile(
-      path.join(__dirname, "./test.html"),
+      path.join(__dirname, "test.html"),
       function (err) {
         if (err) {
           res.status(500).send(err);
