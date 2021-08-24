@@ -9,9 +9,6 @@ app.use(logger("dev"));
 app.use(cors());
 app.use(express.static(__dirname));
 
-/* serves main page */
-//app.use(express.static(path.join(__dirname, "./")));
-
 /** To redirect after auth login */
 app.get('/auth/callback', (req, res) => {
   const code = req.query.code;
@@ -20,9 +17,12 @@ app.get('/auth/callback', (req, res) => {
   //res.redirect(`http://www.rsai.com:9998/test.html?code=${code}`);
 });
 
+/* serves main page */
+app.use(express.static(path.join(__dirname, "./build")));
+
 app.get("*", function (_, res) {
     res.sendFile(
-      path.join(__dirname, "test.html"),
+      path.join(__dirname, "./build/test.html"),
       function (err) {
         if (err) {
           res.status(500).send(err);
