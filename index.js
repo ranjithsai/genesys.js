@@ -19,11 +19,11 @@ app.get('/auth/callback', (req, res) => {
 });
 
 /* serves main page */
-app.use(express.static(path.join(__dirname, "./build")));
+app.use(express.static(path.join(__dirname, "build")));
 
 app.get("*", function (_, res) {
     res.sendFile(
-      path.join(__dirname, "./build/test.html"),
+      path.join(__dirname, "build/test.html"),
       function (err) {
         if (err) {
           res.status(500).send(err);
