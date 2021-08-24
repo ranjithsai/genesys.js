@@ -1,18 +1,16 @@
 const express = require('express');
 const app = express();
 
+const path = require("path");
+const logger = require("morgan");
+const cors = require("cors");
+
+app.use(logger("dev"));
+app.use(cors());
 app.use(express.static(__dirname));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
 /* serves main page */
-app.get('/', (req, res) => {
-  res.sendFile('test.html');
-});
+app.use(express.static(path.join(__dirname, "./")));
 
 /** To redirect after auth login */
 app.get('/auth/callback', (req, res) => {
@@ -22,15 +20,21 @@ app.get('/auth/callback', (req, res) => {
   //res.redirect(`http://www.rsai.com:9998/test.html?code=${code}`);
 });
 
-/* serves all the static files */
-app.get(/^(.+)$/, (req, res) => {
-    console.log(`static file request: ${req.url}`);
-  
-    res.sendFile(__dirname + req.url);
+app.get("*", function (_, res) {
+    res.sendFile(
+      path.join(__dirname, "./test.html"),
+      function (err) {
+        if (err) {
+          res.status(500).send(err);
+        }
+      }
+    );
   });
 
-const port = process.env.PORT || 9998;
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
   console.log(`Listening on ${port}`);
 });
+
+module.exports = app;

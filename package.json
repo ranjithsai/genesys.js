@@ -6,8 +6,9 @@
   "description": "",
   "author": "Genesys",
   "license": "Genesys Telecom Labs",
+  "main": "server.js",
   "scripts": {
-    "build": "node server.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "contributors": [
     {
@@ -16,6 +17,9 @@
     }
   ],
   "devDependencies": {
-    "express": "^4.17.1"
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "path": "^0.12.7"
   }
 }
