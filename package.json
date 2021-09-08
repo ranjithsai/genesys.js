@@ -2,10 +2,8 @@
   "name": "genesys.js",
   "version": "2.0.0",
   "productTitle": "genesys.js",
-  "copyright": "Copyright ©2020 Genesys. All rights reserved.",
   "description": "",
-  "author": "Genesys",
-  "license": "Genesys Telecom Labs",
+  "author": "Ranjith Sai",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
