@@ -423,6 +423,7 @@
 				AuthProvider.command('Auth.logout').then(() => {
 				bAuthenticated = false;
 				toggleLogin();
+				window.location.replace(window.location.origin);
 				});
 			};
 

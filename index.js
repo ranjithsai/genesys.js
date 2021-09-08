@@ -19,11 +19,6 @@ app.get('/auth/callback', (req, res) => {
   //res.redirect(`http://www.rsai.com:9998/test.html?code=${code}`);
 });
 
-app.get('/auth/logout', (req, res) => {
-
-  res.redirect(`https://genesysjs.vercel.app/test.html`);
-});
-
 /* serves main page */
 //app.use(express.static(path.join(__dirname, "build")));
 
