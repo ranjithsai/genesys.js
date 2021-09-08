@@ -227,6 +227,81 @@
 			</a>
 		</div>
 
+		<script type="text/javascript">
+
+			// defaults
+			var sDeploymentId = 'b8dbcfb4-9e3e-4cf3-a2d2-c458825b4c5d';
+			var sEnvironment = 'dev';
+
+			if (window.localStorage.getItem('genesys_deployment_id')) {
+				document.getElementById('enter_deploymentId').value = window.localStorage.getItem('genesys_deployment_id');
+			} else {
+				window.localStorage.setItem('genesys_deployment_id', sDeploymentId);
+				document.getElementById('enter_deploymentId').value = window.localStorage.getItem('genesys_deployment_id');
+			}
+
+			if (window.localStorage.getItem('genesys_environment')) {
+				document.getElementById('enter_environment').value = window.localStorage.getItem('genesys_environment');
+			} else {
+				window.localStorage.setItem('genesys_environment', sEnvironment);
+				document.getElementById('enter_environment').value = window.localStorage.getItem('genesys_environment');
+			}
+
+			function submit() {
+				var deployment_id = document.getElementById('enter_deploymentId').value;
+				window.localStorage.setItem('genesys_deployment_id', deployment_id);
+
+				var environment = document.getElementById('enter_environment').value;
+				window.localStorage.setItem('genesys_environment', environment);
+
+				window.location.reload();
+			}
+
+			var DOMAINS = {
+			  // [ENVS.LOCAL]: 'mypurelocal.com',
+			  'dev': 'inindca.com',
+			  'test': 'inintca.com',
+			  'apne1': 'mypurecloud.jp',
+			  'apne2': 'apne2.pure.cloud',
+			  'apse2': 'mypurecloud.com.au',
+			  'aps1': 'aps1.pure.cloud',
+			  'cac1': 'cac1.pure.cloud',
+			  'euc1': 'mypurecloud.de',
+			  'euw1': 'mypurecloud.ie',
+			  'euw2': 'euw2.pure.cloud',
+			  'use1': 'mypurecloud.com',
+			  'usw2': 'usw2.pure.cloud',
+			  'fedramp-use2-core': 'use2.us-gov-pure.cloud',
+			};
+
+			var sGenesysJSDomain = "https://apps." + DOMAINS[window.localStorage.getItem('genesys_environment')],
+				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/genesys.min.js';
+      
+			if(window.location.pathname.indexOf("/dev/") >= 0) {
+				window._webMessVersion = "dev";
+				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
+			}
+
+			//if(window.location.pathname.indexOf("/WEBMESS-326/") >= 0) {
+				window._webMessVersion = "WEBMESS-326";
+				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
+			//}
+
+		</script>
+
+		<script type="text/javascript" charset="utf-8">
+
+			(function (g, e, n, es, ys) {
+				g['_genesysJs'] = e;  g[e] = g[e] || function () {(g[e].q = g[e].q || []).push(arguments)  };
+				g[e].t = 1 * new Date();  g[e].c = es;
+				ys = document.createElement('script'); ys.async = 1; ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
+			})(window, 'Genesys', sGenesysJSPath, {
+				environment: window.localStorage.getItem('genesys_environment'),
+				deploymentId: window.localStorage.getItem('genesys_deployment_id'),
+				debug: true
+			});
+		</script>
+
 		<script type="text/javascript" defer>
 			const query = window.location.search.substring(1);
 			const brandAuthCode = query.split('code=')[1];
@@ -355,81 +430,6 @@
 			AuthProvider.ready();
 			});
 
-		</script>
-
-		<script type="text/javascript">
-
-			// defaults
-			var sDeploymentId = 'b8dbcfb4-9e3e-4cf3-a2d2-c458825b4c5d';
-			var sEnvironment = 'dev';
-
-			if (window.localStorage.getItem('genesys_deployment_id')) {
-				document.getElementById('enter_deploymentId').value = window.localStorage.getItem('genesys_deployment_id');
-			} else {
-				window.localStorage.setItem('genesys_deployment_id', sDeploymentId);
-				document.getElementById('enter_deploymentId').value = window.localStorage.getItem('genesys_deployment_id');
-			}
-
-			if (window.localStorage.getItem('genesys_environment')) {
-				document.getElementById('enter_environment').value = window.localStorage.getItem('genesys_environment');
-			} else {
-				window.localStorage.setItem('genesys_environment', sEnvironment);
-				document.getElementById('enter_environment').value = window.localStorage.getItem('genesys_environment');
-			}
-
-			function submit() {
-				var deployment_id = document.getElementById('enter_deploymentId').value;
-				window.localStorage.setItem('genesys_deployment_id', deployment_id);
-
-				var environment = document.getElementById('enter_environment').value;
-				window.localStorage.setItem('genesys_environment', environment);
-
-				window.location.reload();
-			}
-
-			var DOMAINS = {
-			  // [ENVS.LOCAL]: 'mypurelocal.com',
-			  'dev': 'inindca.com',
-			  'test': 'inintca.com',
-			  'apne1': 'mypurecloud.jp',
-			  'apne2': 'apne2.pure.cloud',
-			  'apse2': 'mypurecloud.com.au',
-			  'aps1': 'aps1.pure.cloud',
-			  'cac1': 'cac1.pure.cloud',
-			  'euc1': 'mypurecloud.de',
-			  'euw1': 'mypurecloud.ie',
-			  'euw2': 'euw2.pure.cloud',
-			  'use1': 'mypurecloud.com',
-			  'usw2': 'usw2.pure.cloud',
-			  'fedramp-use2-core': 'use2.us-gov-pure.cloud',
-			};
-
-			var sGenesysJSDomain = "https://apps." + DOMAINS[window.localStorage.getItem('genesys_environment')],
-				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/genesys.min.js';
-      
-			if(window.location.pathname.indexOf("/dev/") >= 0) {
-				window._webMessVersion = "dev";
-				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
-			}
-
-			//if(window.location.pathname.indexOf("/WEBMESS-326/") >= 0) {
-				window._webMessVersion = "WEBMESS-326";
-				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
-			//}
-
-		</script>
-
-		<script type="text/javascript" charset="utf-8">
-
-			(function (g, e, n, es, ys) {
-				g['_genesysJs'] = e;  g[e] = g[e] || function () {(g[e].q = g[e].q || []).push(arguments)  };
-				g[e].t = 1 * new Date();  g[e].c = es;
-				ys = document.createElement('script'); ys.async = 1; ys.src = n; ys.charset = 'utf-8'; document.head.appendChild(ys);
-			})(window, 'Genesys', sGenesysJSPath, {
-				environment: window.localStorage.getItem('genesys_environment'),
-				deploymentId: window.localStorage.getItem('genesys_deployment_id'),
-				debug: true
-			});
 		</script>
 
 		<!-- Queued Items -->
