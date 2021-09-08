@@ -5,6 +5,8 @@ const ndAuthLogoutBtn = document.getElementById('authLogoutBtn');
 const ndAuthProvider = document.getElementById('authProvider');
 const ndAuthClientId = document.getElementById('authClientId');
 const ndAuthDomainURL = document.getElementById('authDomainURL');
+const ndLoading = document.getElementById('loading');
+const ndAuthError = document.getElementById('authError');
 const sRedirectURL = window.location.origin;
 let bAuthenticated = false;
 
@@ -22,12 +24,25 @@ function toggleLogin() {
   }
 }
 
+function showProgress() {
+  ndAuthLoginBtn.parentElement.style.display = 'none';
+  ndAuthLogoutBtn.parentElement.style.display = 'none';
+  ndLoading.style.display = 'block';
+}
+
+function hideProgress() {
+  ndLoading.style.display = 'none';
+}
+
 ndAuthLoginBtn.onclick = function () {              // eslint-disable-line
   const sAuthProvider = ndAuthProvider.value;
   const sClientId = ndAuthClientId.value; // Ranjith - 0oa1b936uwbcnuvRF5d7
-  const sDomainURL = ndAuthDomainURL.value; // Ranjith - https://dev-44395699.okta.com/oauth2/v1/authorize
+  const sDomainURL = ndAuthDomainURL.value; // Ranjith - https://dev-44395699.okta.com/oauth2/default/v1/authorize
 
   if (sClientId && sDomainURL) {
+    showProgress();
+    localStorage.setItem('authFetching', true);
+
     switch (sAuthProvider) {
       case 'okta':
         const sAuthURL = `${sDomainURL}?client_id=${sClientId}&scope=openid%20email%20profile%20offline_access&response_type=code&redirect_uri=${sRedirectURL}%2Fauth%2Fcallback&state=eyJiYWNrVG9QYXRoIjoiL3ByaXZhdGUiLCJpc3N1ZXIiOiJva3RhIiwiYnl0ZXMiOiItSEhlWEV3YmNRak5fQWl3a0NkanVDNEZpQ1VPRV81emkzeFlKa1BQaWcwIn0%3D`; // eslint-disable-line
@@ -38,12 +53,19 @@ ndAuthLoginBtn.onclick = function () {              // eslint-disable-line
         break;
     }
   } else {
+    localStorage.setItem('authFetching', false);
     if (!sClientId) document.getElementById('authClientId').classList.add('auth-input-error');
     if (!sDomainURL) document.getElementById('authDomainURL').classList.add('auth-input-error');
   }
 };
 
-toggleLogin();
+const bFetching = localStorage.getItem('authFetching');
+
+if (bFetching === 'true') {
+  showProgress();
+} else {
+  toggleLogin();
+}
 
 // OpenId Authentication setup
 
@@ -73,8 +95,31 @@ Genesys('registerPlugin', 'AuthProvider', (AuthProvider) => {
 
   AuthProvider.subscribe('Auth.authenticated', () => {
     bAuthenticated = true;
+    hideProgress();
+    ndAuthError.innerHTML = '';
+    ndAuthError.style.display = 'none';
+    localStorage.setItem('authFetching', false);
     toggleLogin();
   });
+
+  AuthProvider.subscribe('Auth.error', (error) => {
+    const { message } = error.data || {};
+
+    hideProgress();
+    ndAuthError.innerHTML = message || 'Auth plugin error';
+    ndAuthError.style.display = 'block';
+    localStorage.setItem('authFetching', false); // reset
+  });
+
+  /* Handlers */
+
+  ndAuthLogoutBtn.onclick = function () {        // eslint-disable-line
+
+    AuthProvider.command('Auth.logout').then(() => {
+      bAuthenticated = false;
+      toggleLogin();
+    });
+  };
 
   // Tell CXBus your plugin is ready (mandatory)
   AuthProvider.ready();

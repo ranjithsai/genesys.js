@@ -10,13 +10,14 @@
 				right: 32px;
 				top: 24px;
 			}
-            .auth{
-				margin: 8px;
+
+			.auth{
+				margin: 16px 0px 8px 0px;
 				padding: 8px;
 				border-radius: 4px;
 				border: 1px solid;
 				right: 0;
-				top: 56px;
+				top: 24px;
 				max-width: 450px;
 			}
 
@@ -55,12 +56,47 @@
 				border: 1px solid red;
 			}
 
+			.auth-error{
+				color: red;
+				display: none;
+				text-align: center;
+			}
+
+			/* css loading dots */
+
+			#loading{
+				display: none;
+			}
+
+			.loading:after {
+				overflow: hidden;
+				display: inline-block;
+				vertical-align: bottom;
+				-webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+				animation: ellipsis steps(6,end) 900ms infinite;
+				content: "\2026"; /* ascii code for the ellipsis character */
+				width: 0px;
+			}
+
+			@keyframes ellipsis {
+				to {
+					width: 1.25em;    
+				}
+			}
+
+			@-webkit-keyframes ellipsis {
+				to {
+					width: 1.25em;    
+				}
+			}
+
 			/* Large devices (laptops/desktops, 992px and up) */
 			@media only screen and (min-width: 992px) {
 				.auth {
 					position: fixed;
 					float: right;
 					right: 24px;
+					top: 46px;
 				}
 			}
 
@@ -70,6 +106,7 @@
 					position: fixed;
 					float: right;
 					right: 24px;
+					top: 46px;
 				}
 			}
 		</style>
@@ -118,7 +155,6 @@
 			<select id="enter_environment">
 				<option selected value="dev">Dev</option>
 				<option value="test">Test</option>
-				<!-- Prod envs disabled for now -->
 				<option value="apne1">Prod APNE1</option>
 				<option value="apne2">Prod APNE2</option>
 				<option value="apse2">Prod APSE2</option>
@@ -135,6 +171,41 @@
 			<button onclick="submit()">Submit</button>
 		</div>
 
+		<div class="auth">
+			<div class="auth-form">
+				<div class="auth-input-content">
+					<label for="authProvider">Choose your Auth provider</label>
+					<select id="authProvider" class="auth-input">
+						<option value="okta">OKTA</option>
+					</select>
+				</div>
+				
+				<div class="auth-input-content">
+					<label for="authDomainURL">Your Auth Domain URL</label>
+					<input type="text" id="authDomainURL" name="authDomainURL" class="auth-input" >
+				</div>
+
+				<div class="auth-input-content">
+					<label for="authClientId">Client Id</label>
+					<input type="text" id="authClientId" name="authClientId" class="auth-input">
+				</div>
+			</div>
+			
+			<div class="auth-submit">
+				<a id="authLoginBtn" class="auth-btn">Login</a>
+			</div>
+
+			<div class="auth-submit">
+				<a id="authLogoutBtn" class="auth-btn">Logout</a>
+			</div>
+
+			<div id="loading" class="auth-submit">
+				<div class="loading auth-btn"></div>
+			</div>
+
+			<div id="authError" class="auth-error"></div>
+		</div>
+
 		<!-- Progress Chart -->
 		<ul style="display:inline-block">
 			<li id="step-snippet-exec">Snippet Executing</li>
@@ -142,7 +213,7 @@
 			<li id="step-localstorage-ready">LocalStorage Plugin Ready</li>
 			<li id="step-cookies-ready">Cookies Plugin Ready</li>
 			<li id="step-identifiers-ready">Identifiers Plugin Ready</li>
-			<li id="step-auth-ready">Auth Plugin Ready</li>
+			<!-- <li id="step-auth-ready">Auth Plugin Ready</li> -->
 			<li id="step-queue-exec">Queue Executing</li>
 			<li id="step-messenger-helper-ready">Messenger Helper Ready</li>
 			<li id="step-messenger-ready">Messenger Plugin Ready</li>
@@ -155,6 +226,8 @@
 				Bundle Report
 			</a>
 		</div>
+
+		<script type="text/javascript" src="./authprovider.min.js" defer></script>
 
 		<script type="text/javascript">
 
@@ -208,6 +281,11 @@
       
 			if(window.location.pathname.indexOf("/dev/") >= 0) {
 				window._webMessVersion = "dev";
+				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
+			}
+
+			if(window.location.pathname.indexOf("/WEBMESS-326/") >= 0) {
+				window._webMessVersion = "WEBMESS-326";
 				sGenesysJSPath = sGenesysJSDomain + '/genesys-bootstrap/'+window._webMessVersion+'/genesys.min.js';
 			}
 
@@ -269,37 +347,6 @@
 				mark('cobrowse-ready');
 			});
 		</script>
-
-        <div class="auth">
-            <div class="auth-form">
-                <div class="auth-input-content">
-                    <label for="authProvider">Choose your Auth provider</label>
-                    <select id="authProvider" class="auth-input">
-                        <option value="okta">OKTA</option>
-                    </select>
-                </div>
-                
-                <div class="auth-input-content">
-                    <label for="authDomainURL">Your Auth Domain URL</label>
-                    <input type="text" id="authDomainURL" name="authDomainURL" class="auth-input" >
-                </div>
-
-                <div class="auth-input-content">
-                    <label for="authClientId">Client Id</label>
-                    <input type="text" id="authClientId" name="authClientId" class="auth-input">
-                </div>
-            </div>
-            
-            <div class="auth-submit">
-                <a id="authLoginBtn" class="auth-btn">Login</a>
-            </div>
-
-            <div class="auth-submit">
-                <a id="authLogoutBtn" class="auth-btn">Logout</a>
-            </div>
-        </div>
-
-        <script type="text/javascript" src="./authprovider.js" defer></script>
 
 		<div>
 			<script type="text/javascript">
