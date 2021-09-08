@@ -15,8 +15,6 @@ app.get('/auth/callback', (req, res) => {
   const code = req.query.code;
 
   res.redirect(`https://genesysjs.vercel.app/test.html?code=${code}`)
-  //res.redirect(`https://apps.inindca.com/genesys-bootstrap/WEBMESS-326/test.html?code=${code}`); // TODO: Remove branch path once deployed in lower
-  //res.redirect(`http://www.rsai.com:9998/test.html?code=${code}`);
 });
 
 /* serves main page */
