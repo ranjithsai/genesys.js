@@ -366,7 +366,7 @@
 
 			AuthProvider.registerCommand('getAuthCode', (e) => {
 				e.resolve({
-				code: brandAuthCode,
+				authCode: brandAuthCode,
 				redirectUri: `${sRedirectURL}/auth/callback`,
 				});
 			});
