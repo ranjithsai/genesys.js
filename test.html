@@ -171,6 +171,23 @@
 						<option value="google">Google</option>
 					</select>
 				</div>
+
+				<div class="auth-input-content" id="optional-parameters">
+					<label for="optionalParameters">Optional Parameters</label>
+					<input type="checkbox" id="optionalParameters" name="optionalParameters" class="auth-input"></br>
+				</div>
+
+				<div id="showOptionalParameters" style="display:none" class="auth-input-content">
+					<span class="auth-input-content">
+						<label for="nonce">Nonce</label>
+						<input type="checkbox" id="nonce" name="nonce" checked="true" disabled>
+					</span>
+
+					<span class="auth-input-content">
+						<label for="maxAge">Max Age</label>
+						<input type="number" id="maxAge" name="maxAge">
+					</span>
+				</div>
 				
 				<div id = "okta_input_form">
 					<div class="auth-input-content">
@@ -236,7 +253,7 @@
 		</div>
 		<script type="text/javascript">
 			function init() {
-				const googleClientID = window.localStorage.getItem('googleClientID'); // eslint-disable-line
+				const googleClientID = window.localStorage.getItem('googleClientID'); 
 
 				gapi.load('auth2', function() {
 					if(googleClientID) {
@@ -319,14 +336,34 @@
 			const ndLoading = document.getElementById('loading');
 			const ndAuthError = document.getElementById('authError');
 			const ndGoogleClientID = document.getElementById('googleClientID');
+      const ndOptionalParameters = document.getElementById('optionalParameters');
+			const ndShowOptionalParameters = document.getElementById('showOptionalParameters');
+			const ndAuthMaxAge = document.getElementById('maxAge');
+			const ndAuthNonce = document.getElementById('nonce');
 			const sRedirectURL = window.location.origin;
 			let bAuthenticated = false;
 
-			const authProvider = window.localStorage.getItem('authProvider'); // eslint-disable-line
-			const googleClientID = window.localStorage.getItem('googleClientID'); // eslint-disable-line
+			const clientId = window.localStorage.getItem('clientId'); 
+			const domainUrl = window.localStorage.getItem('domainUrl'); 
+			const authScope = window.localStorage.getItem('authScope'); 
+			const authProvider = window.localStorage.getItem('authProvider');
+			const googleClientID = window.localStorage.getItem('googleClientID');
+			const optionalParameters = window.localStorage.getItem('optionalParameters');
+			let nonce = window.localStorage.getItem('Nonce');
+			let maxAge = window.localStorage.getItem('maxAge');
 
+			if (clientId) ndAuthClientId.value = clientId;
+			if (domainUrl) ndAuthDomainURL.value = domainUrl;
+			if (authScope) ndAuthScope.value = authScope;
 			if (authProvider) ndAuthProvider.value = authProvider;
 			if (googleClientID) ndGoogleClientID.value = googleClientID;
+
+			if (optionalParameters == 'true') {
+				ndOptionalParameters.checked = optionalParameters;
+				ndShowOptionalParameters.style.display = 'block';
+			}
+			if (maxAge) ndAuthMaxAge.value = maxAge;
+			if (nonce) ndAuthNonce.value = true;
 
 			// Internal methods
 
@@ -336,10 +373,17 @@
 				if (ndAuthProvider.value ==='google') {
 					document.getElementById('okta_input_form').style.display = 'none';
 					document.getElementById('google_input_form').style.display = 'block';
+					document.getElementById("optional-parameters").style.display = 'none';
+					if(ndShowOptionalParameters) ndShowOptionalParameters.style.display = 'none'
 					toggleLogin();
 				} else {
 					document.getElementById('okta_input_form').style.display = 'block';
 					document.getElementById('google_input_form').style.display = 'none';
+					document.getElementById("optional-parameters").style.display = 'block';
+					if (optionalParameters == 'true') {
+						ndOptionalParameters.checked = optionalParameters;
+						ndShowOptionalParameters.style.display = 'block';
+					}
 				}
 			}
 			showAuthForm();
@@ -349,17 +393,17 @@
 			});
 
 			function googleSignIn() {
-				gapi.load('auth2', function () { // eslint-disable-line
-					auth2 = gapi.auth2.init({ // eslint-disable-line
-						client_id: ndGoogleClientID.value, // eslint-disable-line
+				gapi.load('auth2', function () { 
+					auth2 = gapi.auth2.init({ 
+						client_id: ndGoogleClientID.value, 
 					});
 
-					auth2.grantOfflineAccess().then(signInCallback); // eslint-disable-line
-					function signInCallback(authResult) { // eslint-disable-line
-						if (authResult['code']) { // eslint-disable-line
+					auth2.grantOfflineAccess().then(signInCallback); 
+					function signInCallback(authResult) { 
+						if (authResult['code']) { 
 							brandAuthCode = authResult['code'];
-							Genesys('command', 'GenesysJS.init'); // eslint-disable-line
-							toggleLogin(); // eslint-disable-line
+							Genesys('command', 'GenesysJS.init'); 
+							toggleLogin(); 
 						}
 					}
 				});
@@ -376,40 +420,89 @@
 			}
 
 			function showProgress() {
-			ndAuthLoginBtn.parentElement.style.display = 'none';
-			ndAuthLogoutBtn.parentElement.style.display = 'none';
-			ndLoading.style.display = 'block';
+				ndAuthLoginBtn.parentElement.style.display = 'none';
+				ndAuthLogoutBtn.parentElement.style.display = 'none';
+				ndLoading.style.display = 'block';
 			}
 
 			function hideProgress() {
-			ndLoading.style.display = 'none';
+				ndLoading.style.display = 'none';
 			}
 
-			ndAuthLoginBtn.onclick = function () {              // eslint-disable-line
+			ndOptionalParameters.onclick = function () {
+				ndShowOptionalParameters.style.display = ndShowOptionalParameters.style.display !== 'none' ? 'none' : 'block';
+				ndAuthMaxAge.value = '';
+			};
+
+			function nonceUUID() {
+				return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+					const r = Math.random() * 16 | 0,
+						v = c == 'x' ? r : r & 0x3 | 0x8;
+
+					return v.toString(16);
+				});
+			}
+
+			function clearStorage() {
+				
+				const sAuthProvider = ndAuthProvider.value;
+				if (sAuthProvider ==='google') {
+					localStorage.removeItem('googleClientID'); 
+					ndGoogleClientID.value = '';
+				}
+				else {
+					localStorage.removeItem('clientId'); 
+					localStorage.removeItem('domainUrl'); 
+					localStorage.removeItem('authScope'); 
+					if (nonce) {
+						localStorage.removeItem('optionalParameters'); 
+						localStorage.removeItem('Nonce'); 
+						localStorage.removeItem('maxAge');
+					}
+
+					ndAuthClientId.value = '';
+					ndAuthDomainURL.value = '';
+					ndAuthScope.value = 'offline_access';
+					ndAuthMaxAge.value = '';
+					ndOptionalParameters.checked = false;
+					ndShowOptionalParameters.style.display = 'none';// default
+
+					localStorage.removeItem('authProvider'); 
+				}	
+			}
+
+			function brandLogin() {
+
 				const sAuthProvider = ndAuthProvider.value;
 				const sClientId = ndAuthClientId.value; // Ranjith - 0oa1b936uwbcnuvRF5d7
 				const sDomainURL = ndAuthDomainURL.value; // Ranjith - https://dev-44395699.okta.com/oauth2/default/v1/authorize
 				const sAuthScope = ndAuthScope.value;
 				const sGoogleClientID = ndGoogleClientID.value;
+				const sOptionalParameters = ndOptionalParameters.checked;
+				var sOfflineAccess = '';
+				var sAuthURL = '';
+				maxAge = ndAuthMaxAge.value;
+				let bOptionalParameters = sOptionalParameters? maxAge ? true : false : true;
 
-				localStorage.setItem('authProvider', ndAuthProvider.value); // eslint-disable-line
-
-				if (sClientId && sDomainURL || sGoogleClientID) {
+				if (sClientId && sDomainURL && bOptionalParameters || sGoogleClientID) {
 					showProgress();
 					localStorage.setItem('authFetching', true);
 
 					switch (sAuthProvider) {
 					case 'okta':
 						if (sAuthScope === 'offline_access') sOfflineAccess = '%20offline_access';
-						const sAuthURL = `${sDomainURL}?client_id=${sClientId}&scope=openid%20email%20profile${sOfflineAccess}&response_type=code&redirect_uri=${sRedirectURL}%2Fauth%2Fcallback&state=eyJiYWNrVG9QYXRoIjoiL3ByaXZhdGUiLCJpc3N1ZXIiOiJva3RhIiwiYnl0ZXMiOiItSEhlWEV3YmNRak5fQWl3a0NkanVDNEZpQ1VPRV81emkzeFlKa1BQaWcwIn0%3D`; // eslint-disable-line
-
+						if (sOptionalParameters) {
+							nonce = nonceUUID();
+							localStorage.setItem('maxAge', ndAuthMaxAge.value);
+							localStorage.setItem('Nonce', nonce);
+							sAuthURL = `${sDomainURL}?client_id=${sClientId}&scope=openid%20email%20profile${sOfflineAccess}&response_type=code&redirect_uri=${sRedirectURL}%2Fauth%2Fcallback&state=eyJiYWNrVG9QYXRoIjoiL3ByaXZhdGUiLCJpc3N1ZXIiOiJva3RhIiwiYnl0ZXMiOiItSEhlWEV3YmNRak5fQWl3a0NkanVDNEZpQ1VPRV81emkzeFlKa1BQaWcwIn0%3D&nonce=${nonce}&max_age=${maxAge}`;
+						} else {
+							sAuthURL = `${sDomainURL}?client_id=${sClientId}&scope=openid%20email%20profile${sOfflineAccess}&response_type=code&redirect_uri=${sRedirectURL}%2Fauth%2Fcallback&state=eyJiYWNrVG9QYXRoIjoiL3ByaXZhdGUiLCJpc3N1ZXIiOiJva3RhIiwiYnl0ZXMiOiItSEhlWEV3YmNRak5fQWl3a0NkanVDNEZpQ1VPRV81emkzeFlKa1BQaWcwIn0%3D`;
+						}
 						document.getElementById('authLoginBtn').href = sAuthURL;
 						break;
-					case 'google': // eslint-disable-line
-						if (ndGoogleClientID) {
-							localStorage.setItem('googleClientID', ndGoogleClientID.value); // eslint-disable-line
-						}
-						if (sGoogleClientID) googleSignIn(); // eslint-disable-line
+					case 'google':
+						if (sGoogleClientID) googleSignIn();
 					break;
 					default:
 						break;
@@ -419,8 +512,30 @@
 					if (!sClientId) document.getElementById('authClientId').classList.add('auth-input-error');
 					if (!sDomainURL) document.getElementById('authDomainURL').classList.add('auth-input-error');
 					if (!sGoogleClientID) document.getElementById('googleClientID').classList.add('auth-input-error');
+					if (sOptionalParameters) {
+						if (!maxAge) document.getElementById('maxAge').classList.add('auth-input-error');
+					}
 				}
-			};
+			}
+
+			ndAuthLoginBtn.onclick = function () {
+				if (ndAuthProvider.value==='google') {
+					if (ndGoogleClientID) {
+						localStorage.setItem('googleClientID', ndGoogleClientID.value); 
+					}
+				}
+				else {
+					localStorage.setItem('clientId', ndAuthClientId.value); 
+					localStorage.setItem('domainUrl', ndAuthDomainURL.value); 
+					localStorage.setItem('authScope', ndAuthScope.value); 
+					localStorage.setItem('nonce', ndAuthNonce.checked); 
+					localStorage.setItem('maxAge', ndAuthMaxAge.value); 
+					localStorage.setItem('optionalParameters', ndOptionalParameters.checked); 
+				}
+				localStorage.setItem('authProvider', ndAuthProvider.value); 
+
+  			brandLogin();
+			}
 
 			const bFetching = localStorage.getItem('authFetching');
 
@@ -445,12 +560,25 @@
 
 			AuthProvider.registerCommand('getAuthCode', (e) => {
 				let sRedirectURI = (ndAuthProvider.value==='google')? sRedirectURL: `${sRedirectURL}/auth/callback`
-				e.resolve({
-				authCode: brandAuthCode,
-				redirectUri: sRedirectURI,
-				});
+
+				const sData = {
+					authCode: brandAuthCode,
+					redirectUri: sRedirectURI,
+      	};
+
+				if (nonce) sData.nonce = nonce;
+				if (maxAge) sData.maxAge = parseInt(maxAge);
+
+				e.resolve(sData);
 			});
 
+			AuthProvider.registerCommand('reAuthenticate', (e) => {
+				// Brand can handle this how ever they want.
+				// This command will be called when current refreshToken and/or authCode are no more valid. User needs to re-login here to provide us new authCode and/or refreshToken.
+
+				ndAuthLoginBtn.click(); // simulate the login click.
+				e.resolve();
+  		});
 
 			AuthProvider.subscribe('Auth.ready', () => {
 				bAuthenticated = AuthProvider.data('Auth.authenticated');
@@ -475,14 +603,22 @@
 				localStorage.setItem('authFetching', false); // reset
 			});
 
+			AuthProvider.subscribe('Auth.loggedOut', () => {
+				if (bAuthenticated) {
+					bAuthenticated = false;
+					toggleLogin();
+					clearStorage();
+				}
+  		});
+
 			/* Handlers */
 
-			ndAuthLogoutBtn.onclick = function () {        // eslint-disable-line
+			ndAuthLogoutBtn.onclick = function () {        
 
 				if (ndAuthProvider.value ==='google') {
-					const auth2 = gapi.auth2.getAuthInstance(); // eslint-disable-line
+					const auth2 = gapi.auth2.getAuthInstance(); 
 
-					auth2.signOut().then(function () { // eslint-disable-line
+					auth2.signOut().then(function () { 
 						AuthProvider.command('Auth.logout')
 							.finally(() => {
 								bAuthenticated = false;
@@ -491,9 +627,9 @@
 					});
 				} else {
 					AuthProvider.command('Auth.logout').finally(() => {
-					bAuthenticated = false;
-					toggleLogin();
-					window.location.replace(window.location.origin);
+						bAuthenticated = false;
+						toggleLogin();
+						window.location.replace(window.location.origin);
 					});
 				}
 			};
